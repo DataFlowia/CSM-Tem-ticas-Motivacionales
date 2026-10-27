@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Comunidad San Mateo | Osorno</title>
+    <!-- Google Fonts: Inter & Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        darkBg: '#050505',
+                        cardBg: '#0b0f17',
+                        cardInner: '#070a0f',
+                        neonCyan: '#00f0ff',
+                        neonMagenta: '#ff007f',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Estilos globales */
+        body {
+            background-color: #050505;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* -------------------------------------------------------------
+           EFECTO PERIMETRAL LÁSER ANIMADO AL PASAR EL CURSOR (HOVER)
+           ------------------------------------------------------------- */
+        .laser-card-container {
+            position: relative;
+            border-radius: 1rem;
+            padding: 1px; /* Espacio para que luzca el borde */
+            background: transparent;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* Borde interior base cuando no hay hover */
+        .laser-card-inner {
+            background-color: #0b0f17;
+            border-radius: calc(1rem - 1px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+            z-index: 2;
+            height: 100%;
+        }
+
+        /* Capa animada circulante con gradient cian/magenta */
+        .laser-card-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(
+                from 0deg,
+                transparent 0deg,
+                #00f0ff 60deg,
+                #ff007f 120deg,
+                transparent 180deg
+            );
+            opacity: 0;
+            z-index: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Animación activa solo al pasar el cursor (Hover) */
+        .laser-card-container:hover::before {
+            opacity: 1;
+            animation: laserRotate 3s linear infinite;
+        }
+
+        .laser-card-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.2);
+        }
+
+        @keyframes laserRotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Transición suave para acordeones colapsables */
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .accordion-content.open {
+            max-height: 1400px;
+        }
+
+        /* Scrollbar personalizado */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050505;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00f0ff;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-neonCyan selection:text-black">
+
+    <!-- HEADER / BRANDING -->
+    <header class="sticky top-0 z-50 bg-[#050505]/90 backdrop-blur-md border-b border-white/10 px-4 lg:px-8 py-4">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            
+            <!-- Logotipo e Identidad -->
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-neonCyan to-neonMagenta p-[2px] flex items-center justify-center shadow-lg shadow-neonCyan/20">
+                    <div class="w-full h-full bg-darkBg rounded-[10px] flex items-center justify-center">
+                        <svg class="w-7 h-7 text-neonCyan" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="font-heading font-extrabold text-xl lg:text-2xl tracking-tight text-white">
+                        COMUNIDAD <span class="text-transparent bg-clip-text bg-gradient-to-r from-neonCyan to-neonMagenta">SAN MATEO</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">Osorno • Red de Exalumnos</p>
+                </div>
+            </div>
+
+            <!-- Datos Rápidos del Grupo -->
+            <div class="flex items-center gap-3 text-xs font-medium">
+                <div class="bg-cardBg border border-white/10 px-3 py-1.5 rounded-lg flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-neonCyan animate-pulse"></span>
+                    <span class="text-slate-300">WhatsApp: <strong class="text-white">280 Inscritos</strong></span>
+                </div>
+                <div class="bg-cardBg border border-white/10 px-3 py-1.5 rounded-lg hidden sm:flex items-center gap-2">
+                    <span class="text-slate-300">Núcleo: <strong class="text-neonMagenta">40 - 65 años (80%)</strong></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="max-w-7xl mx-auto w-full px-4 lg:px-8 py-8 flex-grow space-y-6">
+
+        <!-- BANNER DE BIENVENIDA -->
+        <div class="laser-card-container">
+            <div class="laser-card-inner p-6 lg:p-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                    <div class="space-y-2">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neonCyan/10 border border-neonCyan/30 text-neonCyan text-xs font-semibold uppercase tracking-wider">
+                            Red Sanmateína Activa
+                        </div>
+                        <h2 class="font-heading text-2xl lg:text-3xl font-bold text-white">
+                            Conectando Generaciones, Construyendo Memoria
+                        </h2>
+                        <p class="text-slate-400 text-sm lg:text-base max-w-2xl">
+                            Espacio oficial de coordinación para dinamizar nuestra comunidad, recopilar material histórico para la futura página web y potenciar el networking entre todas las promociones.
+                        </p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                        <a href="mailto:exalumnos@sanmateo.cl?subject=Aporte%20Fotografico%20-%20Galeria%20Historica%20Comunidad%20San%20Mateo" class="px-5 py-3 rounded-xl bg-gradient-to-r from-neonCyan to-cyan-500 text-black font-semibold text-sm text-center hover:opacity-90 transition shadow-lg shadow-neonCyan/20 flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                            Enviar Fotos al Mail
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIONES COLAPSIBLES (ACORDEONES) -->
+        <div class="grid grid-cols-1 gap-6">
+
+            <!-- SECCIÓN 1: PLAN ESTRATÉGICO -->
+            <div class="laser-card-container">
+                <div class="laser-card-inner">
+                    <button onclick="toggleAccordion('acc-1')" class="w-full p-6 text-left flex justify-between items-center focus:outline-none">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-lg bg-neonCyan/10 text-neonCyan flex items-center justify-center font-bold text-lg">01</div>
+                            <div>
+                                <h3 class="font-heading font-bold text-lg text-white">Plan Estratégico de Contenidos Temáticos</h3>
+                                <p class="text-xs text-slate-400">Ejes semanales para mantener la interacción fluida y motivadora</p>
+                            </div>
+                        </div>
+                        <svg id="icon-acc-1" class="w-5 h-5 text-neonCyan transform transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div id="acc-1" class="accordion-content px-6 pb-6">
+                        <div class="border-t border-white/10 pt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="bg-cardInner p-4 rounded-xl border border-white/5">
+                                <span class="text-xs font-semibold text-neonCyan uppercase tracking-wider">Martes</span>
+                                <h4 class="font-heading font-bold text-white mt-1">Networking y Negocios</h4>
+                                <p class="text-xs text-slate-400 mt-2">Difusión de emprendimientos, oportunidades laborales e integración entre seniors y jóvenes.</p>
+                            </div>
+                            <div class="bg-cardInner p-4 rounded-xl border border-white/5">
+                                <span class="text-xs font-semibold text-neonMagenta uppercase tracking-wider">Jueves</span>
+                                <h4 class="font-heading font-bold text-white mt-1">Rescate Fotográfico (TBT)</h4>
+                                <p class="text-xs text-slate-400 mt-2">Recopilación de fotos históricas de alianzas, torneos, giras y profesores antiguos.</p>
+                            </div>
+                            <div class="bg-cardInner p-4 rounded-xl border border-white/5">
+                                <span class="text-xs font-semibold text-yellow-400 uppercase tracking-wider">Sábado</span>
+                                <h4 class="font-heading font-bold text-white mt-1">Vida Comunitaria y Deporte</h4>
+                                <p class="text-xs text-slate-400 mt-2">Coordinación de torneos deportivos (fútbol, básquetbol, pádel) y encuentros de camaradería.</p>
+                            </div>
+                            <div class="bg-cardInner p-4 rounded-xl border border-white/5">
+                                <span class="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Permanente</span>
+                                <h4 class="font-heading font-bold text-white mt-1">Diálogos Sanmateínos</h4>
+                                <p class="text-xs text-slate-400 mt-2">Charlas breves sobre tecnología, innovación, historia y trayectorias de exalumnos.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 2: BANCO DE MEMORIA VIVA Y WEB -->
+            <div class="laser-card-container">
+                <div class="laser-card-inner">
+                    <button onclick="toggleAccordion('acc-2')" class="w-full p-6 text-left flex justify-between items-center focus:outline-none">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-lg bg-neonMagenta/10 text-neonMagenta flex items-center justify-center font-bold text-lg">02</div>
+                            <div>
+                                <h3 class="font-heading font-bold text-lg text-white">Banco de Memoria Viva & Sitio Web</h3>
+                                <p class="text-xs text-slate-400">Recepción de fotos e historias para el nuevo portal institucional</p>
+                            </div>
+                        </div>
+                        <svg id="icon-acc-2" class="w-5 h-5 text-neonMagenta transform transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div id="acc-2" class="accordion-content px-6 pb-6">
+                        <div class="border-t border-white/10 pt-4 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                            <div class="space-y-3 text-sm text-slate-300">
+                                <p>Estamos recolectando material audiovisual para nutrir la futura galería histórica de nuestra nueva página web.</p>
+                                <ul class="space-y-2">
+                                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-neonCyan"></span> Digitaliza o toma foto clara a tus álbumes guardados.</li>
+                                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-neonCyan"></span> Adjunten los archivos especificando la generación o año aproximado.</li>
+                                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-neonCyan"></span> Se dará un reconocimiento público en el chat por cada aporte.</li>
+                                </ul>
+                            </div>
+                            <div class="bg-cardInner p-5 rounded-xl border border-neonCyan/20 flex flex-col justify-between items-center text-center">
+                                <span class="text-xs text-slate-400 uppercase tracking-widest">Correo de Recepción de Fotos</span>
+                                <a href="mailto:exalumnos@sanmateo.cl?subject=Aporte%20Fotografico%20-%20Galeria%20Historica%20Comunidad%20San%20Mateo" class="font-heading font-bold text-xl text-neonCyan my-3 hover:underline">
+                                    exalumnos@sanmateo.cl
+                                </a>
+                                <span class="text-xs text-slate-500">Envía tus archivos adjuntos indicando nombre y generación.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 3: ENCUESTA INTERACTIVA -->
+            <div class="laser-card-container">
+                <div class="laser-card-inner">
+                    <button onclick="toggleAccordion('acc-3')" class="w-full p-6 text-left flex justify-between items-center focus:outline-none">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center font-bold text-lg">03</div>
+                            <div>
+                                <h3 class="font-heading font-bold text-lg text-white">Preferencias y Encuesta Comunitaria</h3>
+                                <p class="text-xs text-slate-400">Vota directamente tus actividades favoritas e impulsa la comunidad</p>
+                            </div>
+                        </div>
+                        <svg id="icon-acc-3" class="w-5 h-5 text-cyan-400 transform transition-transform duration-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div id="acc-3" class="accordion-content px-6 pb-6">
+                        <div class="border-t border-white/10 pt-4 space-y-6">
+                            
+                            <!-- Tarjetas de Opciones -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <div id="card-opt-A" onclick="selectSurveyOption('A')" class="bg-cardInner p-4 rounded-xl border border-white/5 cursor-pointer transition hover:border-neonCyan">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="text-neonCyan font-bold text-sm">[ Opción A ]</span>
+                                        <input type="radio" name="surveyOpt" id="radio-A" value="A" class="accent-neonCyan">
+                                    </div>
+                                    <h4 class="font-heading font-semibold text-white text-sm">Deportes y Reencuentros</h4>
+                                    <p class="text-xs text-slate-400 mt-1">Torneos deportivos, asados por generación y reuniones sociales.</p>
+                                </div>
+
+                                <div id="card-opt-B" onclick="selectSurveyOption('B')" class="bg-cardInner p-4 rounded-xl border border-white/5 cursor-pointer transition hover:border-neonMagenta">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="text-neonMagenta font-bold text-sm">[ Opción B ]</span>
+                                        <input type="radio" name="surveyOpt" id="radio-B" value="B" class="accent-neonMagenta">
+                                    </div>
+                                    <h4 class="font-heading font-semibold text-white text-sm">Networking Laboral</h4>
+                                    <p class="text-xs text-slate-400 mt-1">Red de contactos profesionales y bolsa de prácticas o empleos.</p>
+                                </div>
+
+                                <div id="card-opt-C" onclick="selectSurveyOption('C')" class="bg-cardInner p-4 rounded-xl border border-white/5 cursor-pointer transition hover:border-yellow-400">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="text-yellow-400 font-bold text-sm">[ Opción C ]</span>
+                                        <input type="radio" name="surveyOpt" id="radio-C" value="C" class="accent-yellow-400">
+                                    </div>
+                                    <h4 class="font-heading font-semibold text-white text-sm">Charlas y Formación</h4>
+                                    <p class="text-xs text-slate-400 mt-1">Talleres de actualización tecnológica, IA, historia y diálogos.</p>
+                                </div>
+
+                                <div id="card-opt-D" onclick="selectSurveyOption('D')" class="bg-cardInner p-4 rounded-xl border border-white/5 cursor-pointer transition hover:border-emerald-400">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="text-emerald-400 font-bold text-sm">[ Opción D ]</span>
+                                        <input type="radio" name="surveyOpt" id="radio-D" value="D" class="accent-emerald-400">
+                                    </div>
+                                    <h4 class="font-heading font-semibold text-white text-sm">Acción Social y Voluntariado</h4>
+                                    <p class="text-xs text-slate-400 mt-1">Proyectos de ayuda social, tutorías y apoyo solidario.</p>
+                                </div>
+                            </div>
+
+                            <!-- WIDGET FORMULARIO INTERACTIVO JS -->
+                            <div class="bg-cardInner p-5 rounded-xl border border-white/10 space-y-4">
+                                <h4 class="font-heading font-bold text-white text-base flex items-center gap-2">
+                                    <svg class="w-5 h-5 text-neonCyan" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    Envía tu voto directamente por Correo
+                                </h4>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-400 mb-1">Nombre Completo (Opcional)</label>
+                                        <input type="text" id="voterName" placeholder="Ej: Rodrigo Morales" class="w-full bg-darkBg border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-neonCyan transition">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-400 mb-1">Año / Generación (Opcional)</label>
+                                        <input type="text" id="voterYear" placeholder="Ej: Generación 1995" class="w-full bg-darkBg border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-neonCyan transition">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-400 mb-1">Sugerencia adicional o comentario (Opcional)</label>
+                                    <textarea id="voterComment" rows="2" placeholder="Escribe alguna idea o sugerencia para la comunidad..." class="w-full bg-darkBg border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-neonCyan transition"></textarea>
+                                </div>
+
+                                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+                                    <span id="surveyStatus" class="text-xs text-slate-400">Selecciona una opción arriba para habilitar tu voto.</span>
+                                    <button onclick="submitSurveyVote()" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-neonCyan to-neonMagenta text-black font-bold text-sm hover:opacity-90 transition shadow-lg shadow-neonCyan/20 flex items-center justify-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                                        Enviar mi Voto por Email
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- FOOTER MINIMALISTA -->
+    <footer class="bg-black border-t border-white/10 py-6 px-4 text-center">
+        <a href="mailto:exalumnos@sanmateo.cl" class="text-sm font-medium text-slate-400 hover:text-neonCyan transition-colors">
+            exalumnos@sanmateo.cl
+        </a>
+    </footer>
+
+    <!-- LÓGICA JAVASCRIPT (ACORDEONES Y ENCUESTA) -->
+    <script>
+        let selectedOption = null;
+
+        function toggleAccordion(id) {
+            const content = document.getElementById(id);
+            const icon = document.getElementById('icon-' + id);
+            
+            content.classList.toggle('open');
+            icon.classList.toggle('rotate-180');
+        }
+
+        function selectSurveyOption(optionKey) {
+            selectedOption = optionKey;
+            
+            // Uncheck all
+            ['A', 'B', 'C', 'D'].forEach(opt => {
+                const radio = document.getElementById('radio-' + opt);
+                const card = document.getElementById('card-opt-' + opt);
+                if (radio) radio.checked = (opt === optionKey);
+                if (card) {
+                    if (opt === optionKey) {
+                        card.classList.add('border-neonCyan', 'bg-darkBg');
+                    } else {
+                        card.classList.remove('border-neonCyan', 'bg-darkBg');
+                    }
+                }
+            });
+
+            const optionNames = {
+                'A': 'Opción A: Deportes y Reencuentros',
+                'B': 'Opción B: Networking Laboral',
+                'C': 'Opción C: Charlas y Formación',
+                'D': 'Opción D: Acción Social y Voluntariado'
+            };
+
+            const status = document.getElementById('surveyStatus');
+            if (status) {
+                status.innerText = `Seleccionaste: ${optionNames[optionKey]}`;
+                status.className = 'text-xs text-neonCyan font-semibold';
+            }
+        }
+
+        function submitSurveyVote() {
+            if (!selectedOption) {
+                alert('Por favor selecciona una de las opciones (A, B, C o D) antes de enviar.');
+                return;
+            }
+
+            const name = document.getElementById('voterName').value.trim() || 'No especificado';
+            const year = document.getElementById('voterYear').value.trim() || 'No especificado';
+            const comment = document.getElementById('voterComment').value.trim() || 'Sin comentarios adicionales';
+
+            const optionNames = {
+                'A': 'Opción A: Encuentros deportivos y sociales (asados, torneos)',
+                'B': 'Opción B: Red de contactos profesionales y bolsa de trabajo/prácticas',
+                'C': 'Opción C: Charlas temáticas (tecnología, historia, actualidad)',
+                'D': 'Opción D: Proyectos de ayuda social o voluntariado'
+            };
+
+            const subject = encodeURIComponent(`Voto Encuesta Comunidad San Mateo - Opción ${selectedOption}`);
+            const body = encodeURIComponent(
+                `Hola Comunidad San Mateo,\n\n` +
+                `Mi voto para la encuesta de actividades es:\n` +
+                `-> ${optionNames[selectedOption]}\n\n` +
+                `Datos del Participante:\n` +
+                `- Nombre: ${name}\n` +
+                `- Año/Generación: ${year}\n` +
+                `- Comentario/Sugerencia: ${comment}\n\n` +
+                `¡Saludos!`
+            );
+
+            // Redirigir a mailto
+            window.location.href = `mailto:exalumnos@sanmateo.cl?subject=${subject}&body=${body}`;
+        }
+
+        // Desplegar el primer contenedor al iniciar
+        document.addEventListener('DOMContentLoaded', () => {
+            toggleAccordion('acc-1');
+        });
+    </script>
+</body>
+</html>
